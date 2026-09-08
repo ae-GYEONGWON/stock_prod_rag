@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>측정 결과 — Codebase Assistant</title>
+<title>어떻게 검증했는가 — Codebase Assistant</title>
 <style>
 /* ============================================================================
    이 페이지가 존재하는 이유
@@ -803,8 +803,7 @@ async function main() {
   stamp.innerHTML =
     `이 페이지의 숫자는 <b>그때 재서 저장해 둔 것</b>이다 — 지금 다시 잰 값이 아니다. ` +
     `잰 때 ${esc((d.generated_at || '').replace('T', ' ').slice(0, 16))}` +
-    (d.git_sha ? ` · 커밋 <code>${esc(d.git_sha)}</code>` : '') +
-    ` · 다시 재려면 <code>python -m eval.publish</code>`;
+    (d.git_sha ? ` · 커밋 <code>${esc(d.git_sha)}</code>` : '');
 
   root.innerHTML = '';
 

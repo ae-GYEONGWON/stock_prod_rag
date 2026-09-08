@@ -2,7 +2,7 @@
 
 [![평가 게이트](https://github.com/ae-GYEONGWON/codebase-rag-assistant/actions/workflows/eval.yml/badge.svg)](https://github.com/ae-GYEONGWON/codebase-rag-assistant/actions/workflows/eval.yml)
 
-**▶ 설치 없이 바로 보기 — [측정 결과 대시보드](https://ae-gyeongwon.github.io/codebase-rag-assistant/)** · 무엇을 재고 무엇을 정했는지 7장짜리 기록
+**▶ 설치 없이 바로 보기 — [만든 사람이 어떻게 검증했는지](https://ae-gyeongwon.github.io/codebase-rag-assistant/)** · 무엇을 재고 무엇을 정했는지 7장짜리 기록
 
 **한 프로젝트의 문서 · 코드 · 변경 이력을 전부 읽어 두고, 질문하면 답과 함께
 그 답이 어디서 나왔는지를 보여주는 챗봇입니다.**
@@ -26,11 +26,11 @@
 
 ## 재고 정한 것 — `/eval`
 
-### 👉 [지금 바로 열어 보기 — 측정 결과 대시보드](https://ae-gyeongwon.github.io/codebase-rag-assistant/)
+### 👉 [지금 바로 열어 보기 — 만든 사람이 어떻게 검증했는지](https://ae-gyeongwon.github.io/codebase-rag-assistant/)
 
 설치도 실행도 필요 없습니다. **무엇을 재고 무엇을 정했는지 7장짜리 기록**이 그대로 열립니다.
 
-![측정 결과 화면](docs/images/04-eval-dashboard.jpg)
+![어떻게 검증했는지 화면](docs/images/04-eval-dashboard.jpg)
 
 같은 화면이 서버를 띄우면 **http://127.0.0.1:8123/eval** 에도 있습니다(측정을 다시 돌리지
 않아도 바로 보입니다). 여기에 담긴 것:
