@@ -130,8 +130,14 @@ button, input, textarea { font: inherit; color: inherit; }
   font-size: 12.5px; color: var(--c-text-dim); padding: 3px var(--s-2);
   border-radius: var(--r-sm); font-family: var(--font-mono);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  /* 누를 수 있는 것이다 — 누르면 그 파일 이름이 입력창에 채워진다. */
+  width: 100%; text-align: left; background: none; border: 0; cursor: pointer;
+  /* 목록이 길어지자 줄들이 서로 눌려 글자가 겹쳐 보였다. 줄 높이를 고정한다. */
+  flex: 0 0 auto; min-height: 22px; line-height: 1.5;
 }
 .file-item:hover { background: var(--c-bg); color: var(--c-text); }
+.side-note { font-size: 10.5px; font-weight: 400; letter-spacing: 0; text-transform: none;
+  color: var(--c-text-mute); margin-left: 6px; }
 
 .side-foot { border-top: 1px solid var(--c-border); padding: var(--s-3) var(--s-4); }
 .row { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); }
@@ -235,6 +241,17 @@ button, input, textarea { font: inherit; color: inherit; }
                padding: 2px 0 2px 10px; margin-top: 8px; line-height: 1.5; }
 .tour-follow b { color: var(--c-text-dim); font-weight: 600; }
 .tour-more { margin-top: var(--s-4); font-size: 13px; color: var(--c-text-dim); }
+/* 직접 물어보라고 말하는 자리. 준비된 질문만 놓여 있으면
+   '잘 답할 만한 것만 골라 둔 것 아니야'라는 의심을 화면이 스스로 만든다. */
+.ask-own { margin-top: var(--s-4); font-size: 13px; color: var(--c-text-dim); line-height: 1.7; }
+.ask-own b { color: var(--c-text); font-weight: 640; }
+.q-seed {
+  font-family: var(--font-mono); font-size: 12px; margin-top: var(--s-2);
+  color: var(--c-accent); background: var(--c-accent-sub);
+  border: 1px solid var(--c-border); border-radius: var(--r-sm);
+  padding: 3px 8px; cursor: pointer;
+}
+.q-seed:hover { border-color: var(--c-accent); }
 
 /* 읽을 것이 없을 때만 나오는 안내. 경고색을 쓰되 오류처럼 붉게 채우지는 않는다 —
    고장이 아니라 **아직 준비가 안 된 상태**이고, 할 일은 명령 한 줄이다. */
@@ -660,8 +677,8 @@ body.is-readonly .composer { display: none; }
       </section>
 
       <section class="side-section">
-        <h2 class="side-label">문서 목록</h2>
-        <div class="file-list" id="files" role="list"></div>
+        <h2 class="side-label">무엇을 물어볼 수 있나<span class="side-note">누르면 질문이 시작됩니다</span></h2>
+        <div class="file-list" id="files" role="group" aria-label="무엇을 물어볼 수 있나 — 누르면 그 파일 이름까지 입력창에 채워집니다"></div>
       </section>
     </div>
 
@@ -716,9 +733,20 @@ body.is-readonly .composer { display: none; }
              답마다 <strong>어디서 나온 말인지</strong>를 함께 보여주고, 그 파일의 원문까지 열어 볼 수 있습니다.</p>
           <div class="tour" id="tour"></div>
           <div class="chips" id="chips" hidden></div>
+          <!-- 위 질문은 전부 준비된 것이다. 그 사실을 먼저 밝히고 직접 물어보라고
+               말해야, 이 저장소가 /eval 에서 다루는 의심(문제를 낸 사람과 푸는 시스템을
+               만든 사람이 같다)과 첫 화면이 어긋나지 않는다. -->
+          <p class="ask-own">
+            위 질문들은 <b>보여 드리려고 미리 골라 둔 것</b>입니다. 직접 물어보셔도 됩니다 —
+            파일 이름이나 함수 이름을 그대로 넣으면 그 자리를 찾아옵니다.
+            왼쪽 목록을 누르면 <b>파일 이름까지만</b> 채워집니다 — 뒷말은 직접 이어 쓰세요.
+            질문은 이런 모양이면 됩니다(눌러보셔도 됩니다).<br>
+            <button type="button" class="q-seed"
+                    data-seed="app/retriever.py 는 무슨 일을 해?">app/retriever.py 는 무슨 일을 해?</button>
+          </p>
           <p class="tour-more">
             이 어시스턴트가 실제로 얼마나 맞히는지, 그리고 <b>재어 보고 그만둔 것은 무엇인지</b>는
-            <a href="/eval">측정 결과</a>에 있습니다.
+            <a href="/eval">만든 사람이 어떻게 검증했는지</a>에 있습니다.
           </p>
         </section>
       </div>
@@ -732,7 +760,7 @@ body.is-readonly .composer { display: none; }
         <form id="f">
           <div class="input-shell">
             <label class="sr-only" for="q">질문</label>
-            <textarea id="q" rows="1" placeholder="질문을 입력하세요…  (Shift+Enter 로 줄바꿈)" autocomplete="off"></textarea>
+            <textarea id="q" rows="1" placeholder="직접 물어보세요 — 이 저장소의 문서·코드·변경 이력 안에서 찾습니다  (Shift+Enter 로 줄바꿈)" autocomplete="off"></textarea>
             <button class="send" id="send" type="submit" aria-label="전송">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </button>
@@ -1607,6 +1635,20 @@ function autoGrow() {
 }
 els.q.addEventListener('input', autoGrow);
 
+/* 보내지 않고 **입력창에 채우기만** 한다. 바로 보내버리면 그것도 결국 우리가 골라 준
+   질문이 된다. 손으로 한 번 고쳐 보내야 '내가 물은 질문'이 된다. */
+function seedQuestion(text) {
+  els.q.value = text;
+  autoGrow();
+  els.q.focus();
+  try { els.q.setSelectionRange(text.length, text.length); } catch (e) { /* 숨겨진 입력창 */ }
+}
+
+document.addEventListener('click', (e) => {
+  const seed = e.target.closest && e.target.closest('[data-seed]');
+  if (seed) seedQuestion(seed.dataset.seed);
+});
+
 els.q.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {   // isComposing: 한글 조합 중 전송 방지
     e.preventDefault();
@@ -1751,9 +1793,14 @@ async function boot() {
     renderSetupNote(topics);
 
     els.files.innerHTML = '';
-    (topics.files || []).slice(0, 60).forEach(f => {
-      const n = el('div', 'file-item', esc(f));
-      n.setAttribute('role', 'listitem'); n.title = f;
+    // askable 이 없는 서버(예전 버전)에서는 문서 목록으로 떨어진다.
+    (topics.askable || topics.files || []).forEach(f => {
+      const n = el('button', 'file-item', esc(f));
+      n.type = 'button';
+      n.title = f + ' — 누르면 이 이름까지 채워집니다';
+      // 문장을 **일부러 끝릺지 않고** 둔다. 완성된 질문을 채워 주면 그대로
+      // 보내게 되고, 그러면 그것도 결국 우리가 골라 준 질문이 된다.
+      n.onclick = () => seedQuestion(f + ' 에서 ');
       els.files.appendChild(n);
     });
 

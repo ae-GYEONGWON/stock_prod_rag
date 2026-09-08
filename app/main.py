@@ -54,7 +54,7 @@ async def lifespan(app: FastAPI):
         # 대시보드까지 함께 막힌다.
         print(f"[warmup] ⚠️ '{active_profile().name}' 인덱스가 비어 있습니다. "
               f"채팅은 답하지 못합니다 → python -m app.ingest --profile {active_profile().name}")
-        print("[warmup]   (측정 결과 대시보드 /eval 은 인덱스 없이도 볼 수 있습니다)")
+        print("[warmup]   (어떻게 검증했는지 화면 /eval 은 인덱스 없이도 볼 수 있습니다)")
     if settings.use_reranker:
         from app.reranker import warmup as rr_warmup
 
@@ -162,6 +162,24 @@ def indexed_chunks() -> int:
         return -1
 
 
+# '무엇을 물어볼 수 있나' 목록에 **일부러 넣지 않는** 문서.
+# 인수인계 문서는 이 화면을 처음 보는 사람이 물어볼 물건이 아니다.
+ASK_LIST_HIDE = ("docs/HANDOFF.md",)
+
+
+def _askable(files: list, code: list) -> list:
+    """목록에 내보낼 순서로 문서·코드를 섮는다.
+
+    코드는 ``app/`` 를 앞에 둔다 — 목록이 재려 있으면 먼저 보이는 것만
+    보게 되는데, 테스트나 평가 스크립트보다는 서비스 코드가 먼저 보여야 한다.
+    """
+    docs = [f for f in files if f not in ASK_LIST_HIDE]
+    # 빈 패키지 표시 파일은 목록에서 뺀다 — 내용이 0바이트라
+    # 눌러도 답할 것이 없다. '물어볼 수 있는 것' 목록에 물을 수 없는 걸 놓지 않는다.
+    askable_code = [f for f in code if not f.endswith("__init__.py")]
+    return docs + sorted(askable_code, key=lambda f: (not f.startswith("app/"), f))
+
+
 @app.get("/topics")
 def topics() -> dict:
     """지식원 목록 + 시작 질문. 프런트의 '이 봇이 아는 것' 패널·칩에 사용."""
@@ -175,6 +193,13 @@ def topics() -> dict:
         "count": len(files),
         "files": files,
         "code_count": len(code),
+        # 화면 왼쪽 '무엇을 물어볼 수 있나' 목록. **코퍼스 그자체가 아니라
+        # 처음 보는 사람에게 권하는 것**이라 둘이 같지 않다.
+        #   - 문서만 세 개 놓여 있으면 물어볼 거리가 없어 보인다 — 코드까지 내려보낸다.
+        #   - 인수인계 문서는 목록에서만 뺀다. 코퍼스에는 그대로 있다 —
+        #     demo 평가셋 6문항이 이 문서를 정답 근거로 걸고 있고, 한 문항은
+        #     이 문서가 유일한 근거다. 빼면 답이 존재하지 않게 된다.
+        "askable": _askable(files, code),
         # 빈 화면의 **원인**을 화면이 말할 수 있게 하는 세 가지(노트 #29).
         # 파일이 0 인 것과 색인이 0 인 것은 원인도 해법도 다르다 — 나눠서 준다.
         "profile": p.name,
